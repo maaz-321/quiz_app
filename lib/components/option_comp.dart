@@ -26,7 +26,7 @@ class Option extends StatelessWidget {
                   option, // Removed unnecessary interpolation
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue,
+                    color: Colors.black,
                   ),
                 ),
                 Radio<String>(

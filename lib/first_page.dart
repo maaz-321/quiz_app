@@ -1,14 +1,36 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:quiz_app/components/option_comp.dart';
+import 'package:http/http.dart' as http;
 
 class FirstPage extends StatefulWidget {
   const FirstPage({super.key});
-
   @override
   State<FirstPage> createState() => _FirstPageState();
 }
 
 class _FirstPageState extends State<FirstPage> {
+  List responsedata = [];
+  int number = 0;
+  Future? getsapi() async {
+    final response =
+        await http.get(Uri.parse("https://opentdb.com/api.php?amount=10"));
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body)["results"];
+      setState(() {
+        responsedata = data;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    getsapi();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,11 +68,12 @@ class _FirstPageState extends State<FirstPage> {
                                     spreadRadius: 3,
                                     color: Colors.blue),
                               ]),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 18.0),
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 18.0),
                             child: Column(
                               children: [
-                                Row(
+                                const Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
@@ -64,12 +87,15 @@ class _FirstPageState extends State<FirstPage> {
                                             fontSize: 20, color: Colors.red)),
                                   ],
                                 ),
-                                Center(
+                                const Center(
                                   child: Text("Question: 9/10",
                                       style: TextStyle(color: Colors.blue)),
                                 ),
                                 SizedBox(
-                                    height: 25, child: Text("What is computer"))
+                                    height: 25,
+                                    child: Text(responsedata.isEmpty
+                                        ? responsedata[number]["question"]
+                                        : ''))
                               ],
                             ),
                           ),
@@ -91,9 +117,15 @@ class _FirstPageState extends State<FirstPage> {
               const SizedBox(
                 height: 5,
               ),
-              Option("A"),
-              Option("B"),
-              Option("C"),
+              Option(responsedata.isEmpty
+                  ? responsedata[number]['correct_answer']
+                  : ""),
+              Option(responsedata.isEmpty
+                  ? responsedata[number]['incorrect_answer'][0]
+                  : ''),
+              Option(responsedata.isEmpty
+                  ? responsedata[number]['incorrect_answer'][1]
+                  : ""),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: ElevatedButton(
@@ -120,3 +152,5 @@ class _FirstPageState extends State<FirstPage> {
     );
   }
 }
+
+void nextquestion() {}
