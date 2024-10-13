@@ -87,7 +87,7 @@ class SecondPage extends StatelessWidget {
                                                 color: Colors.blue,
                                                 shape: BoxShape.circle),
                                           ),
-                                          const Text("first")
+                                          const Text("Complete ")
                                         ],
                                       ),
                                       const Text("100")
@@ -106,7 +106,7 @@ class SecondPage extends StatelessWidget {
                                                 color: Colors.blue,
                                                 shape: BoxShape.circle),
                                           ),
-                                          const Text("first")
+                                          const Text("Total Question")
                                         ],
                                       ),
                                       const Text("100")
@@ -134,7 +134,7 @@ class SecondPage extends StatelessWidget {
                                                 color: Colors.green,
                                                 shape: BoxShape.circle),
                                           ),
-                                          const Text("first")
+                                          const Text("Correct")
                                         ],
                                       ),
                                       const Text("100")
@@ -153,7 +153,7 @@ class SecondPage extends StatelessWidget {
                                                 color: Colors.red,
                                                 shape: BoxShape.circle),
                                           ),
-                                          const Text("first")
+                                          const Text("Wrong")
                                         ],
                                       ),
                                       const Text("100")

@@ -1,6 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:quiz_app/Second_page.dart';
 import 'package:quiz_app/components/option_comp.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,6 +14,10 @@ class FirstPage extends StatefulWidget {
 class _FirstPageState extends State<FirstPage> {
   List responsedata = [];
   int number = 0;
+  late Timer time;
+  int secondremaining = 15;
+  List shuffledOptions = [];
+
   Future? getsapi() async {
     final response =
         await http.get(Uri.parse("https://opentdb.com/api.php?amount=10"));
@@ -20,6 +25,7 @@ class _FirstPageState extends State<FirstPage> {
       var data = jsonDecode(response.body)["results"];
       setState(() {
         responsedata = data;
+        shuffledUp();
       });
     }
   }
@@ -29,6 +35,7 @@ class _FirstPageState extends State<FirstPage> {
     super.initState();
 
     getsapi();
+    starttimer();
   }
 
   @override
@@ -100,14 +107,14 @@ class _FirstPageState extends State<FirstPage> {
                             ),
                           ),
                         )),
-                    const Positioned(
+                    Positioned(
                       bottom: 210,
                       left: 190,
                       child: CircleAvatar(
                           radius: 42,
                           backgroundColor: Colors.orange,
                           child: Text(
-                            "!5",
+                            secondremaining.toString(),
                             style: TextStyle(fontSize: 16),
                           )),
                     )
@@ -117,15 +124,13 @@ class _FirstPageState extends State<FirstPage> {
               const SizedBox(
                 height: 5,
               ),
-              Option(responsedata.isEmpty
-                  ? responsedata[number]['correct_answer']
-                  : ""),
-              Option(responsedata.isEmpty
-                  ? responsedata[number]['incorrect_answer'][0]
-                  : ''),
-              Option(responsedata.isEmpty
-                  ? responsedata[number]['incorrect_answer'][1]
-                  : ""),
+              Column(
+                  children: (responsedata.isNotEmpty &&
+                          responsedata[number]['incorrect_answers'] != null)
+                      ? shuffledOptions.map((data) {
+                          return Option(data.toString());
+                        }).toList()
+                      : []),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: ElevatedButton(
@@ -135,7 +140,9 @@ class _FirstPageState extends State<FirstPage> {
                             horizontal: 20, vertical: 15),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
-                    onPressed: () {},
+                    onPressed: () {
+                      nextquestion();
+                    },
                     child: Container(
                       alignment: Alignment.center,
                       child: const Text("Next",
@@ -151,6 +158,50 @@ class _FirstPageState extends State<FirstPage> {
       ),
     );
   }
-}
 
-void nextquestion() {}
+  void nextquestion() {
+    if (number == 9) {
+      complete();
+      shuffledUp();
+    }
+    setState(() {
+      number = number + 1;
+      shuffledUp();
+      starttimer();
+    });
+  }
+
+  void complete() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => SecondPage()));
+  }
+
+  void shuffledUp() {
+    setState(() {
+      shuffledOptions = shuffleOptions([
+        responsedata[number]['correct_answer'],
+        ...responsedata[number]['incorrect_answers'] as List
+      ]);
+    });
+  }
+
+  List<String> shuffleOptions(List<String> data) {
+    List<String> shuffledOption = List.from(data);
+    shuffledOption.shuffle();
+    return shuffledOption; // Return the shuffled list instead of null
+  }
+
+  void starttimer() {
+    time = Timer.periodic(const Duration(seconds: 15), (timer) {
+      setState(() {
+        if (secondremaining > 0) {
+          secondremaining--;
+        } else {
+          nextquestion();
+          secondremaining = 15;
+          shuffledUp();
+        }
+      });
+    });
+  }
+}
